@@ -6,6 +6,12 @@ using UnityEngine;
 public class EndlessWindow : EditorWindow
 {
 
+    protected Vector2 m_Position;
+    private Vector2 m_DragStart;
+    private bool m_Dragging;
+
+
+
     public float _zoom = 1f;
     private const float kZoomMin = 0.1f;
     private const float kZoomMax = 10.0f;
@@ -45,6 +51,8 @@ public class EndlessWindow : EditorWindow
         EditorZoomArea.End();
         if (GUI.changed) Repaint();
     }
+
+    
 
     private void DrawDebug()
     {
@@ -103,11 +111,11 @@ public class EndlessWindow : EditorWindow
                 break;
 
             case EventType.MouseDrag:
-                if ((Event.current.button == 0 && Event.current.modifiers == EventModifiers.Alt) || Event.current.button == 2)
-                {
+                //if ((Event.current.button == 0 && Event.current.modifiers == EventModifiers.Alt) || Event.current.button == 2)
+                if (Event.current.button == 0)
+                    {
                     Vector2 delta2 = Event.current.delta;
                     _zoomCoordsOrigin += delta2;
-
                     Event.current.Use();
                 }
                 break;
@@ -123,6 +131,28 @@ public class EndlessWindow : EditorWindow
                 _zoomCoordsOrigin -= zoomCoordsMousePos - (oldZoom / _zoom) * zoomCoordsMousePos;
                 Event.current.Use();
                 break;
+            
+            case EventType.DragUpdated:
+                DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+                //Debug.Log("DragUpdated " + Event.current.mousePosition);
+                break;
+            
+
+            case EventType.DragPerform:
+
+                DragAndDrop.AcceptDrag();
+                if(DragAndDrop.objectReferences.Length > 0)
+                {
+                    foreach (Object obj in DragAndDrop.objectReferences)
+                    {
+                        Debug.Log(obj.name);
+                    }
+                     
+                }
+                
+                
+                break;
+
         }
     }
 
