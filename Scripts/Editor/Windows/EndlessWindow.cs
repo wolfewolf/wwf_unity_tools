@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class EndlessWindow : EditorWindow
 {
+    public List<EndlessWindowItem> items = new List<EndlessWindowItem>();
 
     protected Vector2 m_Position;
     private Vector2 m_DragStart;
@@ -33,7 +34,7 @@ public class EndlessWindow : EditorWindow
         
         EditorZoomArea.Begin(_zoom, _zoomArea);
         {
-
+            /*
             GUI.Box(new Rect(0.0f + _zoomCoordsOrigin.x, 0.0f + _zoomCoordsOrigin.y, 100.0f, 25.0f), "Zoomed Box");
 
             // You can also use GUILayout inside the zoomed area.
@@ -41,9 +42,13 @@ public class EndlessWindow : EditorWindow
             GUILayout.Button("Zoomed Button 1");
             GUILayout.Button("Zoomed Button 2");
             GUILayout.EndArea();
+            */
 
             DrawGrid(20, 0.2f, Color.gray);
             DrawGrid(100, 0.4f, Color.gray);
+
+            foreach (EndlessWindowItem ewi in items)
+                ewi.Draw(_zoomCoordsOrigin);
 
             ProcessEvents(Event.current);
         }
@@ -112,7 +117,7 @@ public class EndlessWindow : EditorWindow
 
             case EventType.MouseDrag:
                 //if ((Event.current.button == 0 && Event.current.modifiers == EventModifiers.Alt) || Event.current.button == 2)
-                if (Event.current.button == 0)
+                if (Event.current.button == 0 || Event.current.button == 2)
                     {
                     Vector2 delta2 = Event.current.delta;
                     _zoomCoordsOrigin += delta2;
@@ -139,25 +144,39 @@ public class EndlessWindow : EditorWindow
             
 
             case EventType.DragPerform:
-
                 DragAndDrop.AcceptDrag();
-                if(DragAndDrop.objectReferences.Length > 0)
-                {
-                    foreach (Object obj in DragAndDrop.objectReferences)
-                    {
-                        Debug.Log(obj.name);
-                    }
-                     
-                }
-                
-                
+                OnDragPerform(Event.current);
                 break;
 
         }
     }
 
-    private Vector2 ConvertScreenCoordsToZoomCoords(Vector2 screenCoords)
+    public virtual void OnDragPerform(Event e)
     {
-        return (screenCoords - _zoomArea.TopLeft()) / _zoom - _zoomCoordsOrigin;
+        
     }
+
+    public Vector2 ConvertScreenCoordsToZoomCoords(Vector2 screenCoords)
+    {
+        return screenCoords - _zoomCoordsOrigin;
+    }
+}
+
+
+public class EndlessWindowItem
+{
+    public Object obj;
+    public Vector2 pos;
+
+    public EndlessWindowItem(Object obj, Vector2 pos)
+    {
+        this.obj = obj;
+        this.pos = pos;
+    }
+
+    public void Draw(Vector2 _zoomCoordsOrigin)
+    {
+        GUI.Box(new Rect(pos.x + _zoomCoordsOrigin.x, pos.y + _zoomCoordsOrigin.y, 100.0f, 100.0f), obj.name);
+    }
+
 }
